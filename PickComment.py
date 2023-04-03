@@ -373,6 +373,64 @@ def pick_comment_umamusume(url):
     # CSVで出力
     Export_Csv2(title, comments, comments2)
 
+# コメントをリストで抽出してcsvに出力する（おーぷん2ch:https://open2ch.net/）
+def pick_comment_open2ch(url):
+    # ページのHTMLを取得
+    headers = {"User-Agent":"Mozilla/5.0"}
+    response=requests.get(url, headers=headers)
+    # response = requests.get(url)
+    response.encoding = 'UTF-8'
+    html = response.content
+
+    # BeautifulSoupで解析
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    # Winでファイルに使用できない文字を置換する
+    title = re.sub(r'[\\/:*?"<>|]', '', soup.title.text) + '.csv'
+    title = title.replace('\n', '').replace('\r', '')
+    
+    # 条件で抽出
+    comment_elements = soup.select('dd')
+    comments = []
+
+    # get_textで取得するとスレッド番号が上位のものを全て含んだテキストになってしまうため
+    # 原因となっているcontentsの末尾を削除してから取得する
+    for comment in comment_elements:
+        comment.contents = comment.contents[:-1]
+        comments.append(re.sub('>>\d{1,4}', "", comment.get_text(strip=True)))
+    
+    # CSVで出力
+    Export_Csv1(title, comments)
+
+# コメントをリストで抽出してcsvに出力する（2ch:https://www.2ch.sc/）
+def pick_comment_2ch_sc(url):
+    # ページのHTMLを取得
+    headers = {"User-Agent":"Mozilla/5.0"}
+    response=requests.get(url, headers=headers)
+    # response = requests.get(url)
+    response.encoding = 'UTF-8'
+    html = response.content
+
+    # BeautifulSoupで解析
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    # Winでファイルに使用できない文字を置換する
+    title = re.sub(r'[\\/:*?"<>|]', '', soup.title.text) + '.csv'
+    title = title.replace('\n', '').replace('\r', '')
+    
+    # 条件で抽出
+    comment_elements = soup.select('dd')
+    comments = []
+
+    # get_textで取得するとスレッド番号が上位のものを全て含んだテキストになってしまうため
+    # 原因となっているcontentsの末尾を削除してから取得する
+    for comment in comment_elements:
+        comment.contents = comment.contents[:-1]
+        comments.append(re.sub('>>\d{1,4}', "", comment.get_text(strip=True)))
+    
+    # CSVで出力
+    Export_Csv1(title, comments)
+
 def pick_comment(url):
     # ページのHTMLを取得
     response = requests.get(url)
@@ -481,6 +539,16 @@ def CheckUrl(url):
     elif "https://" in url and "https://umamusume.net/" in url:
         pick_comment_umamusume(url)
         return True
+    
+    # ★おーぷん2ch:https://open.open2ch.net
+    elif "https://" in url and ".open2ch.net/" in url:
+        pick_comment_open2ch(url)
+        return True
+    
+    # ★2ch:https://www.2ch.sc/
+    elif "https://" in url and ".2ch.sc/" in url:
+        pick_comment_2ch_sc(url)
+        return True
     else:
         return False
 
@@ -501,6 +569,8 @@ print("**   - ウマ娘まとめちゃんねる:https://umamusume.net/ -")
 print("**   - ウマ娘BBS:https://umabbs.com/patio.cgi -")
 print("**   - ぽけりん:https://pokemon-matome.net/ -")
 print("**   - サカラボ:http://sakarabo.blog.jp/ -")
+print("**   - おーぷん2ch:https://open.open2ch.net -")
+print("**   - 2ch:https://www.2ch.sc/ -")
 print("************************************************************************")
 url = input("抽出対象ページのURLを入力してください（URLをコピペしてEnterキーを押下してください）->")
 # URLが抽出可能な対象かチェックする
