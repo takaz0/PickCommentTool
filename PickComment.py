@@ -7,7 +7,7 @@ import re
 from requests_html import HTMLSession
 
 # バージョンを定義
-version = "Pick Comment Tool - ver:1.0"
+version = "Pick Comment Tool - ver:1.1"
 
 # 1つのコメントリストをcsvに出力する
 def Export_Csv1(title, comments):
